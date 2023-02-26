@@ -1,6 +1,8 @@
 import datetime
 import gc
 import os
+import shlex
+import subprocess
 import time
 
 import psutil
@@ -10,7 +12,6 @@ delim = ' | '
 fields = ['rss', 'vms', 'uss', 'swap']
 time_fmt = '%y/%m/%d %H:%I:%S'
 
-font_config = weasyprint.text.fonts.FontConfiguration()
 iteration = 0
 
 def printmem():
@@ -29,23 +30,14 @@ def generate_pdf(): # This is a contrived example. In our actual use-case we're 
     file_template = open('pdf.html', 'r')
     template = file_template.read()
     file_template.close()
+    template = shlex.quote(template)
 
-    pdf = weasyprint.HTML(
-        string=template,
-        encoding='utf-8'
-    ).write_pdf(
-        font_config=font_config,
-    )
+    escaped = shlex.quote(template)
+    pdf = subprocess.Popen(f"echo {escaped} | weasyprint -e utf-8 - -", shell=True, stdout=subprocess.PIPE).stdout.read()
 
     file_output = open('pdfs/' + str(iteration) + '.pdf', 'wb')
     file_output.write(pdf)
     file_output.close()
-
-    del file_template
-    del template
-    del pdf
-    del file_output
-    gc.collect()
 
 now = datetime.datetime.now()
 print(delim.join((
@@ -60,4 +52,3 @@ while True:
         break
     generate_pdf()
     printmem()
-    time.sleep(.05)
