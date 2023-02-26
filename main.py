@@ -1,5 +1,7 @@
 import datetime
+import gc
 import os
+import time
 
 import psutil
 import weasyprint
@@ -39,6 +41,12 @@ def generate_pdf(): # This is a contrived example. In our actual use-case we're 
     file_output.write(pdf)
     file_output.close()
 
+    del file_template
+    del template
+    del pdf
+    del file_output
+    gc.collect()
+
 now = datetime.datetime.now()
 print(delim.join((
     ' ',
@@ -48,7 +56,8 @@ print(delim.join((
 printmem()
 
 while True:
-    if input().lower() != '': # If anything other than Enter/Return is input, exit. Otherwise, generate a new PDF and then print memory usage
+    if iteration > 50:
         break
     generate_pdf()
     printmem()
+    time.sleep(.05)
