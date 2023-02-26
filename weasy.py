@@ -19,7 +19,7 @@ def printmem():
         *[str(round(getattr(mem, field, 0) / 1000000)) + 'mb' for field in fields]
     )))
 
-def render():
+def generate_pdf(): # This is a contrived example. In our actual use-case we're rendering a Django template with context variables, so each regenerate yields a unique document
     file_template = open('pdf.html', 'r')
     template = file_template.read()
     file_template.close()
@@ -44,7 +44,7 @@ print(delim.join((
 printmem()
 
 while True:
-    if input().lower() != '':
+    if input().lower() != '': # If anything other than Enter/Return is input, exit. Otherwise, generate a new PDF and then print memory usage
         break
-    render()
+    generate_pdf()
     printmem()
